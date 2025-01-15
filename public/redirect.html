@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twitch Token Generator</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h2 id="countdown"></h2>
+    <h1>
+      <span id="your-token">Your token: </span
+      ><span id="token" class="censored"></span>
+    </h1>
+    <p id="description">
+      Your token is never stored or even processed by the server. It is only
+      shown in your browser. Make sure to store it yourself, otherwise you have
+      to generate a new one.
+    </p>
+    <script>
+      const visibleTime = 30 * 1000;
+      const tokenSpan = document.getElementById("token");
+      const countdownSpan = document.getElementById("countdown");
+
+      let urlParams = new URLSearchParams(
+        window.location.search || window.location.hash.replace("#", "")
+      );
+      let code = urlParams.get("code");
+      if (!code) {
+        code = urlParams.get("access_token");
+      }
+
+      if (!code) {
+        window.location.href = "/";
+      }
+
+      code = "oauth:" + code;
+
+      const fakeCode = code
+        .split("")
+        .map(() => "*")
+        .join("");
+
+      let countdownInterval = null;
+
+      function startCountdown() {
+        let countdown = visibleTime;
+        const startTime = Date.now();
+        countdownInterval = setInterval(() => {
+          const elapsedTime = Date.now() - startTime;
+          countdown = visibleTime - elapsedTime;
+          countdownSpan.innerText = `Visible for ${(countdown / 1000).toFixed(
+            2
+          )}s`;
+
+          if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            hideCode();
+          }
+        }, 1);
+      }
+
+      function hideCode() {
+        tokenSpan.innerText = fakeCode;
+        tokenSpan.classList.add("censored");
+        countdownSpan.innerText = "Censored. Click to reveal.";
+      }
+
+      function revealCode() {
+        tokenSpan.innerText = code;
+        tokenSpan.classList.remove("censored");
+
+        startCountdown();
+      }
+
+      hideCode();
+
+      // remove url params from url to prevent token leak
+      window.history.replaceState({}, document.title, "/");
+
+      tokenSpan.addEventListener("click", () => {
+        if (tokenSpan.classList.contains("censored")) {
+          revealCode();
+        }
+      });
+    </script>
+  </body>
+</html>

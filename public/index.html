@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twitch Token Generator</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h2>What kind of Token do you want to generate?</h2>
+    <div id="button-box"></div>
+  </body>
+
+  <script>
+    (async () => {
+      const req = await fetch("/options");
+      const options = await req.json();
+      const baseUrl = "https://id.twitch.tv/oauth2/authorize";
+
+      const clientId = options.clientId;
+      const redirectUri = options.redirectUri;
+      const responseType = "token";
+
+      const buttons = [
+        {
+          text: "Chat Bot",
+          description: "Used for chat-only interactions",
+          scopes: ["chat:read", "chat:edit"],
+        },
+        {
+          text: "Redemption Bot",
+          description: "Used for channel point redemptions",
+          scopes: ["channel:read:redemptions", "channel:manage:redemptions"],
+        },
+        {
+          text: "Combined",
+          description: "Used for chat and channel point redemptions",
+          scopes: [
+            "chat:read",
+            "chat:edit",
+            "channel:read:redemptions",
+            "channel:manage:redemptions",
+          ],
+        },
+      ];
+
+      for (let button of buttons) {
+        const { text, scopes } = button;
+        const scope = scopes.join("+");
+        const url = `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&force_verify=true`;
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.innerText = text;
+        a.classList.add("button");
+
+        const br = document.createElement("br");
+        a.appendChild(br);
+
+        const span = document.createElement("span");
+        span.innerText = button.description;
+        span.classList.add("button-description");
+        a.appendChild(span);
+
+        document.getElementById("button-box").appendChild(a);
+      }
+    })();
+  </script>
+</html>
