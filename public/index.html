@@ -25,7 +25,13 @@
         {
           text: "Chat Bot",
           description: "Used for chat-only interactions",
-          scopes: ["chat:read", "chat:edit"],
+          scopes: [
+            "chat:read",
+            "chat:edit",
+            "user:bot",
+            "user:read:chat",
+            "user:write:chat",
+          ],
         },
         {
           text: "Redemption Bot",
@@ -38,6 +44,10 @@
           scopes: [
             "chat:read",
             "chat:edit",
+            "user:bot",
+            "user:read:chat",
+            "user:write:chat",
+            "bits:read",
             "channel:read:redemptions",
             "channel:manage:redemptions",
           ],
